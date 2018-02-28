@@ -1,0 +1,15 @@
+sudo: required
+dist: trusty
+language: python
+python: '3.5'
+install: git clone https://github.com/QubesOS/qubes-builder ~/qubes-builder
+env:
+ - DIST_DOM0=fc25 USE_QUBES_REPO_VERSION=4.0 USE_QUBES_REPO_TESTING=1
+
+script:
+ - PYTHONPATH=test-packages python3 -m pylint qubeswhonix
+ - ~/qubes-builder/scripts/travis-build
+
+branches:
+  except:
+    - /.*_.*/
