@@ -82,5 +82,7 @@ class QubesWhonixExtension(qubes.ext.Extension):
             return
         if 'whonix-gw' in untrusted_features:
             vm.features['whonix-gw'] = True
+            vm.tags.add('whonix-updatevm')
         if 'whonix-ws' in untrusted_features:
             vm.features['whonix-ws'] = True
+            vm.tags.add('whonix-updatevm')
