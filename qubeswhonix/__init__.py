@@ -27,13 +27,17 @@ class QubesWhonixExtension(qubes.ext.Extension):
     '''qubes-core-admin extension for handling Whonix related settings'''
     @qubes.ext.handler('domain-add', system=True)
     def on_domain_add(self, app, _event, vm, **_kwargs):
-        '''Handle new AppVM created on whonix-ws template and adjust its
-        default settings
+        '''Handle new AppVM created on whonix-ws/whonix-gw template and
+        adjust its default settings
         '''
         # pylint: disable=no-self-use
         template = getattr(vm, 'template', None)
         if template is None:
             return
+
+        if 'whonix-gw' in template.features:
+            vm.tags.add('anon-gateway')
+
         if 'whonix-ws' in template.features:
             # this is new VM based on whonix-ws, adjust its default settings
 
@@ -70,11 +74,13 @@ class QubesWhonixExtension(qubes.ext.Extension):
 
     @qubes.ext.handler('features-request')
     def on_features_request(self, vm, _event, untrusted_features):
-        '''Handle whonix-ws template advertising itself'''
+        '''Handle whonix-ws/whonix-gw template advertising itself'''
         # pylint: disable=no-self-use
         # Allow VM to advertise itself as whonix-ws. But do not allow to drop
         #  that info on its own
         if not isinstance(vm, qubes.vm.templatevm.TemplateVM):
             return
+        if 'whonix-gw' in untrusted_features:
+            vm.features['whonix-gw'] = True
         if 'whonix-ws' in untrusted_features:
             vm.features['whonix-ws'] = True
