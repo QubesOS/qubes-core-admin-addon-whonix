@@ -29,6 +29,9 @@ make %{?_smp_mflags}
 %doc README.md
 %{python3_sitelib}/qubeswhonix-*.egg-info
 %{python3_sitelib}/qubeswhonix
+%attr(0664,root,qubes) %config(noreplace) /etc/qubes-rpc/policy/whonix.GatewayCommand
+%attr(0664,root,qubes) %config(noreplace) /etc/qubes-rpc/policy/whonix.NewStatus
+%attr(0664,root,qubes) %config(noreplace) /etc/qubes-rpc/policy/whonix.SdwdateStatus
 
 %changelog
 
