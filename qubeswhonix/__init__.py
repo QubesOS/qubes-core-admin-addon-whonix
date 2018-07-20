@@ -86,3 +86,10 @@ class QubesWhonixExtension(qubes.ext.Extension):
         if 'whonix-ws' in untrusted_features:
             vm.features['whonix-ws'] = True
             vm.tags.add('whonix-updatevm')
+
+    @qubes.ext.handler('domain-load')
+    def on_domain_load(self, vm, _event):
+        '''Retroactively add anon-gateway tag to sys-whonix'''
+        # pylint: disable=no-self-use
+        if vm.name == 'sys-whonix' and 'anon-gateway' not in vm.tags:
+            vm.tags.add('anon-gateway')
