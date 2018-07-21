@@ -40,6 +40,8 @@ class QubesWhonixExtension(qubes.ext.Extension):
 
         if 'whonix-ws' in template.features:
             # this is new VM based on whonix-ws, adjust its default settings
+            
+            vm.tags.add('anon-vm')
 
             # look for appropriate whonix-gateway
             if 'whonix-default-gw' in template.features:
@@ -69,8 +71,6 @@ class QubesWhonixExtension(qubes.ext.Extension):
                 vm.log.error('QubesWhonixExtension: default dispvm\'{}\' does '
                              'not exists'.format(default_dispvm))
                 vm.default_dispvm = None
-
-            vm.tags.add('anon-vm')
 
     @qubes.ext.handler('features-request')
     def on_features_request(self, vm, _event, untrusted_features):
