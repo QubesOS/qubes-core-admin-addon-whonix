@@ -61,6 +61,8 @@ class QubesWhonixExtension(qubes.ext.Extension):
             if 'whonix-default-dispvm' in template.features:
                 default_dispvm = template.features['whonix-default-dispvm']
             else:
+                #  example template.name: whonix-ws-14
+                # example default_dispvm: whonix-ws-14-dvm
                 default_dispvm = template.name + '-dvm'
 
             if default_dispvm in app.domains:
