@@ -91,7 +91,9 @@ class QubesWhonixExtension(qubes.ext.Extension):
 
     @qubes.ext.handler('domain-load')
     def on_domain_load(self, vm, _event):
-        '''Retroactively add anon-gateway tag to sys-whonix'''
+        '''Retroactively add tags to sys-whonix and anon-whonix'''
         # pylint: disable=no-self-use
         if vm.name == 'sys-whonix' and 'anon-gateway' not in vm.tags:
             vm.tags.add('anon-gateway')
+        if vm.name == 'anon-whonix' and 'anon-vm' not in vm.tags:
+            vm.tags.add('anon-vm')
