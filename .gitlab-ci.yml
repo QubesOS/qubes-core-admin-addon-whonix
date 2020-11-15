@@ -1,0 +1,14 @@
+include:
+  - project: 'QubesOS/qubes-continuous-integration'
+    file: '/r4.1/gitlab-base.yml'
+  - project: 'QubesOS/qubes-continuous-integration'
+    file: '/r4.1/gitlab-dom0.yml'
+  - project: 'QubesOS/qubes-continuous-integration'
+    file: '/r4.1/gitlab-vm.yml'
+
+tests:pylint:
+  stage: tests
+  before_script:
+    - pip install pylint
+  script:
+    - PYTHONPATH=test-packages python3 -m pylint qubeswhonix
