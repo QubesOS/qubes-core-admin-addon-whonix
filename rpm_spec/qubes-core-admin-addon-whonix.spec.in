@@ -10,6 +10,7 @@ Source0:    %{name}-%{version}.tar.gz
 
 BuildArch:	noarch
 BuildRequires:	python3-devel
+BuildRequires:  make
 
 %description
 qubes-core-admin extension for handling Whonix related settings
