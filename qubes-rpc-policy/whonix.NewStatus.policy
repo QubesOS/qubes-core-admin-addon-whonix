@@ -1,3 +1,3 @@
-$tag:anon-vm $tag:anon-gateway allow
-$tag:anon-vm sys-whonix allow
+$tag:anon-vm $tag:anon-gateway allow,autostart=no
+$tag:anon-vm sys-whonix allow,autostart=no
 $anyvm $anyvm deny
