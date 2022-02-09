@@ -1,3 +1,2 @@
-$tag:anon-vm $tag:anon-gateway allow,autostart=no
-$tag:anon-vm sys-whonix allow,autostart=no
-$anyvm $anyvm deny
+# Legacy. This file does nothing and will be removed in a future release. See:
+# /etc/qubes/policy.d/80-whonix.policy

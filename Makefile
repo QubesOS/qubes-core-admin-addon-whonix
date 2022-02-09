@@ -8,3 +8,5 @@ install:
 	cp qubes-rpc-policy/whonix.GatewayCommand.policy $(DESTDIR)/etc/qubes-rpc/policy/whonix.GatewayCommand
 	cp qubes-rpc-policy/whonix.NewStatus.policy $(DESTDIR)/etc/qubes-rpc/policy/whonix.NewStatus
 	cp qubes-rpc-policy/whonix.SdwdateStatus.policy $(DESTDIR)/etc/qubes-rpc/policy/whonix.SdwdateStatus
+	mkdir -p $(DESTDIR)/etc/qubes/policy.d/
+	cp qubes-rpc-policy/80-whonix.policy $(DESTDIR)/etc/qubes/policy.d/80-whonix.policy

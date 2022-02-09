@@ -30,9 +30,12 @@ make %{?_smp_mflags}
 %doc README.md
 %{python3_sitelib}/qubeswhonix-*.egg-info
 %{python3_sitelib}/qubeswhonix
+# legacy 4.0 policy format
 %attr(0664,root,qubes) %config(noreplace) /etc/qubes-rpc/policy/whonix.GatewayCommand
 %attr(0664,root,qubes) %config(noreplace) /etc/qubes-rpc/policy/whonix.NewStatus
 %attr(0664,root,qubes) %config(noreplace) /etc/qubes-rpc/policy/whonix.SdwdateStatus
+# new 5.0 policy format
+%attr(0664,root,qubes) %config(noreplace) /etc/qubes/policy.d/80-whonix.policy
 
 %changelog
 
