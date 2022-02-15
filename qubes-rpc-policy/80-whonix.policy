@@ -1,7 +1,7 @@
 # service            arg source            target            action params
 
-whonix.SdwdateStatus  *  @tag:anon-gateway @tag:anon-vm      allow autostart=no
-whonix.SdwdateStatus  *  sys-whonix        @tag:anon-vm      allow autostart=no
+whonix.SdwdateStatus  *  @tag:anon-gateway @tag:anon-vm      allow autostart=no notify=no
+whonix.SdwdateStatus  *  sys-whonix        @tag:anon-vm      allow autostart=no notify=no
 whonix.SdwdateStatus  *  @anyvm            @default          deny notify=no
 whonix.SdwdateStatus  *  @anyvm            @anyvm            deny
 
