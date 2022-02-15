@@ -2,7 +2,7 @@
 
 whonix.SdwdateStatus  +  @tag:anon-gateway @tag:anon-vm      allow autostart=no notify=no
 whonix.SdwdateStatus  +  sys-whonix        @tag:anon-vm      allow autostart=no notify=no
-whonix.SdwdateStatus  +  @anyvm            @default          deny notify=no
+whonix.SdwdateStatus  +  @tag:anon-gateway @default          deny notify=no
 whonix.SdwdateStatus  +  @anyvm            @anyvm            deny
 
 whonix.NewStatus      *  @tag:anon-vm      @tag:anon-gateway allow autostart=no
