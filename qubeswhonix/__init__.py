@@ -53,8 +53,8 @@ class QubesWhonixExtension(qubes.ext.Extension):
             else:
                 # expected netvm does not exists, log an error and set netvm
                 # to None
-                vm.log.error('QubesWhonixExtension: netvm \'{}\' does not '
-                             'exists'.format(netvm))
+                vm.log.error('QubesWhonixExtension: netvm \'%s\' does not '
+                             'exists', netvm)
                 vm.netvm = None
 
             # look for appropriate default dispvm
@@ -70,8 +70,8 @@ class QubesWhonixExtension(qubes.ext.Extension):
             else:
                 # expected default dispvm does not exists, log an error and set
                 # default dispvm to None
-                vm.log.error('QubesWhonixExtension: default dispvm\'{}\' does '
-                             'not exists'.format(default_dispvm))
+                vm.log.error('QubesWhonixExtension: default dispvm\'%s\' does '
+                             'not exists', default_dispvm)
                 vm.default_dispvm = None
 
     @qubes.ext.handler('features-request')
