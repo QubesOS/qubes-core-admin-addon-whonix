@@ -30,7 +30,6 @@ class QubesWhonixExtension(qubes.ext.Extension):
         '''Handle new AppVM created on whonix-ws/whonix-gw template and
         adjust its default settings
         '''
-        # pylint: disable=no-self-use
         template = getattr(vm, 'template', None)
         if template is None:
             return
@@ -77,7 +76,6 @@ class QubesWhonixExtension(qubes.ext.Extension):
     @qubes.ext.handler('features-request')
     def on_features_request(self, vm, _event, untrusted_features):
         '''Handle whonix-ws/whonix-gw template advertising itself'''
-        # pylint: disable=no-self-use
         # Allow VM to advertise itself as whonix-ws. But do not allow to drop
         #  that info on its own
         if not isinstance(vm, qubes.vm.templatevm.TemplateVM):
@@ -92,7 +90,6 @@ class QubesWhonixExtension(qubes.ext.Extension):
     @qubes.ext.handler('domain-load')
     def on_domain_load(self, vm, _event):
         '''Retroactively add tags to sys-whonix and anon-whonix'''
-        # pylint: disable=no-self-use
         if hasattr(vm, 'template') and 'whonix-gw' in vm.template.features \
                 and 'anon-gateway' not in vm.tags:
             vm.tags.add('anon-gateway')
