@@ -10,6 +10,7 @@ Source0:    %{name}-%{version}.tar.gz
 
 BuildArch:	noarch
 BuildRequires:	python3-devel
+BuildRequires:	python3-setuptools
 BuildRequires:  make
 
 %description
