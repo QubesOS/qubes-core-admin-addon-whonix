@@ -1,5 +1,6 @@
 checks:pylint:
   before_script:
+  - sudo dnf install -y python3-pip
   - pip install pylint
   script:
   - PYTHONPATH=test-packages python3 -m pylint qubeswhonix
