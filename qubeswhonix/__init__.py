@@ -89,10 +89,15 @@ class QubesWhonixExtension(qubes.ext.Extension):
 
     @qubes.ext.handler('domain-load')
     def on_domain_load(self, vm, _event):
-        '''Retroactively add tags to sys-whonix and anon-whonix'''
+        '''Retroactively add tags to sys-whonix and anon-whonix. Also enable
+        event buffering.
+        '''
         if hasattr(vm, 'template') and 'whonix-gw' in vm.template.features \
                 and 'anon-gateway' not in vm.tags:
             vm.tags.add('anon-gateway')
         if hasattr(vm, 'template') and 'whonix-ws' in vm.template.features \
                 and 'anon-vm' not in vm.tags:
             vm.tags.add('anon-vm')
+        if hasattr(vm, 'template') and 'whonix-ws' in vm.template.features \
+            and 'gui-events-max-delay' not in vm.features:
+            vm.features['gui-events-max-delay'] = 100
