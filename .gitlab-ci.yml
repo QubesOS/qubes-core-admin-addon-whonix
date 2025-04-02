@@ -1,15 +1,16 @@
 checks:pylint:
   before_script:
+  - sudo dnf install -y python3-pip
   - pip install pylint
   script:
   - PYTHONPATH=test-packages python3 -m pylint qubeswhonix
   stage: checks
 include:
-- file: /r4.1/gitlab-base.yml
-  project: QubesOS/qubes-continuous-integration
-- file: /r4.1/gitlab-dom0.yml
-  project: QubesOS/qubes-continuous-integration
 - file: /r4.2/gitlab-base.yml
   project: QubesOS/qubes-continuous-integration
 - file: /r4.2/gitlab-host.yml
+  project: QubesOS/qubes-continuous-integration
+- file: /r4.3/gitlab-base.yml
+  project: QubesOS/qubes-continuous-integration
+- file: /r4.3/gitlab-host.yml
   project: QubesOS/qubes-continuous-integration
