@@ -36,11 +36,13 @@ class QubesWhonixExtension(qubes.ext.Extension):
 
         if 'whonix-gw' in template.features:
             vm.tags.add('anon-gateway')
+            vm.tags.add('sdwdate-gui-server')
 
         if 'whonix-ws' in template.features:
             # this is new VM based on whonix-ws, adjust its default settings
 
             vm.tags.add('anon-vm')
+            vm.tags.add('sdwdate-gui-client')
 
             # look for appropriate whonix-gateway
             if 'whonix-default-gw' in template.features:
@@ -95,12 +97,16 @@ class QubesWhonixExtension(qubes.ext.Extension):
         '''Retroactively add tags to sys-whonix and anon-whonix. Also enable
         event buffering if it's not already enabled.
         '''
-        if hasattr(vm, 'template') and 'whonix-gw' in vm.template.features \
-                and 'anon-gateway' not in vm.tags:
-            vm.tags.add('anon-gateway')
-        if hasattr(vm, 'template') and 'whonix-ws' in vm.template.features \
-                and 'anon-vm' not in vm.tags:
-            vm.tags.add('anon-vm')
+        if hasattr(vm, 'template') and 'whonix-gw' in vm.template.features:
+            if 'anon-gateway' not in vm.tags:
+                vm.tags.add('anon-gateway')
+            if 'sdwdate-gui-server' not in vm.tags:
+                vm.tags.add('sdwdate-gui-server')
+        if hasattr(vm, 'template') and 'whonix-ws' in vm.template.features:
+            if 'anon-vm' not in vm.tags:
+                vm.tags.add('anon-vm')
+            elif 'sdwdate-gui-client' not in vm.tags:
+                vm.tags.add('sdwdate-gui-client')
         if hasattr(vm, 'template') and 'whonix-ws' in vm.template.features \
             and 'gui-events-max-delay' not in vm.features:
             vm.features['gui-events-max-delay'] = 100

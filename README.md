@@ -8,6 +8,7 @@ is created based on a template with `whonix-ws` feature set, it gets:
  - default dispvm set to name of the template + `-dvm` (can be overriden by
    `whonix-default-dispvm` feature on the template)
  - tag `anon-vm` used by various qrexec policies
+ - tag `sdwdate-gui-client` used for sdwdate-gui qrexec functions.
 
 If any of referenced VM does not exists, extension set relevant property to
 none, to not risk leaking data over clearnet.
@@ -15,6 +16,7 @@ none, to not risk leaking data over clearnet.
 Similarly, new Whonix Gateway is configured. When new VM is created based on a
 template with `whonix-gw` feature set it gets:
  - `anon-gateway` tag
+ - `sdwdate-gui-server` tag
 
 Additionally, Whonix Gateway/Workstation template can request `whonix-ws` feature to be
 added to itself, easing bootstrap of this feature. The canonical way to do
