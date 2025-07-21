@@ -25,6 +25,59 @@ import qubes.vm.templatevm
 
 class QubesWhonixExtension(qubes.ext.Extension):
     '''qubes-core-admin extension for handling Whonix related settings'''
+    @staticmethod
+    def set_ws_netvm(app, vm):
+        '''Set the default NetVM for a Whonix-Workstation qube.'''
+        if isinstance(vm, qubes.vm.templatevm.TemplateVM):
+            return
+        template = getattr(vm, 'template', None)
+        # look for appropriate whonix-gateway
+        if (
+            template is not None
+            and 'whonix-default-gw' in template.features
+        ):
+            netvm = template.features['whonix-default-gw']
+        else:
+            netvm = 'sys-whonix'
+        if netvm in app.domains:
+            vm.netvm = netvm
+        else:
+            # expected netvm does not exists, log an error and set netvm
+            # to None
+            vm.log.error('QubesWhonixExtension: netvm \'%s\' does not '
+                         'exists', netvm)
+            vm.netvm = None
+
+    @staticmethod
+    def set_ws_dispvm(app, vm):
+        '''Set the default DispVM for a Whonix-Workstation qube.'''
+        if isinstance(vm, qubes.vm.templatevm.TemplateVM):
+            return
+        template = getattr(vm, 'template', None)
+        # look for appropriate default dispvm
+        if (
+            template is not None
+            and 'whonix-default-dispvm' in template.features
+        ):
+            default_dispvm = template.features['whonix-default-dispvm']
+        elif template is not None:
+            #  example template.name: whonix-ws-14
+            # example default_dispvm: whonix-ws-14-dvm
+            default_dispvm = template.name + '-dvm'
+        else:
+            # assume whonix-workstation-17-dvm is right
+            # HARDCODED.
+            default_dispvm = 'whonix-workstation-17-dvm'
+
+        if default_dispvm in app.domains:
+            vm.default_dispvm = default_dispvm
+        else:
+            # expected default dispvm does not exists, log an error and set
+            # default dispvm to None
+            vm.log.error('QubesWhonixExtension: default dispvm\'%s\' does '
+                         'not exists', default_dispvm)
+            vm.default_dispvm = None
+
     @qubes.ext.handler('domain-add', system=True)
     def on_domain_add(self, app, _event, vm, **_kwargs):
         '''Handle new AppVM created on whonix-ws/whonix-gw template and
@@ -44,39 +97,28 @@ class QubesWhonixExtension(qubes.ext.Extension):
             vm.tags.add('anon-vm')
             vm.tags.add('sdwdate-gui-client')
 
-            # look for appropriate whonix-gateway
-            if 'whonix-default-gw' in template.features:
-                netvm = template.features['whonix-default-gw']
-            else:
-                netvm = 'sys-whonix'
-            if netvm in app.domains:
-                vm.netvm = netvm
-            else:
-                # expected netvm does not exists, log an error and set netvm
-                # to None
-                vm.log.error('QubesWhonixExtension: netvm \'%s\' does not '
-                             'exists', netvm)
-                vm.netvm = None
-
-            # look for appropriate default dispvm
-            if 'whonix-default-dispvm' in template.features:
-                default_dispvm = template.features['whonix-default-dispvm']
-            else:
-                #  example template.name: whonix-ws-14
-                # example default_dispvm: whonix-ws-14-dvm
-                default_dispvm = template.name + '-dvm'
-
-            if default_dispvm in app.domains:
-                vm.default_dispvm = default_dispvm
-            else:
-                # expected default dispvm does not exists, log an error and set
-                # default dispvm to None
-                vm.log.error('QubesWhonixExtension: default dispvm\'%s\' does '
-                             'not exists', default_dispvm)
-                vm.default_dispvm = None
+            self.set_ws_netvm(app, vm)
+            self.set_ws_dispvm(app, vm)
 
             if 'gui-events-max-delay' not in vm.features:
                 vm.features['gui-events-max-delay'] = 100
+
+    @qubes.ext.handler('domain-feature-set:whonix-ws')
+    def on_whonix_ws_feature_set(
+        self,
+        vm,
+        event,
+        feature,
+        value,
+        oldvalue=None,
+    ):
+        '''Set NetVM and DispVM appropriately on VMs that are newly set as a
+        Whonix-Workstation VM (mostly useful for configuring StandaloneVMs
+        '''
+        # pylint: disable=unused-argument,too-many-positional-arguments
+        if value == '1':
+            self.set_ws_netvm(vm.app, vm)
+            self.set_ws_dispvm(vm.app, vm)
 
     @qubes.ext.handler('features-request')
     def on_features_request(self, vm, _event, untrusted_features):
