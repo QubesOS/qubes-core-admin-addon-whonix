@@ -5,3 +5,17 @@ sdwdate.ConnectCheck *   @tag:sdwdate-gui-client @tag:sdwdate-gui-server allow  
 
 sdwdate.Connect      *   @anyvm                  @anyvm                  deny
 sdwdate.ConnectCheck *   @anyvm                  @anyvm                  deny
+
+# Legacy, all of these services should effectively be no-ops for fully updated
+# Whonix-Gateway and Whonix-Workstation qubes.
+whonix.SdwdateStatus +         @tag:anon-gateway @tag:anon-vm      allow  autostart=no notify=no
+whonix.SdwdateStatus +         @tag:anon-gateway @default          deny   notify=no
+whonix.SdwdateStatus +         @anyvm            @anyvm            deny
+
+whonix.NewStatus     *         @tag:anon-vm      @tag:anon-gateway allow  autostart=no
+whonix.NewStatus     *         @anyvm            @anyvm            deny
+
+whonix.GatewayCommand +restart @tag:anon-gateway @tag:anon-vm      allow  autostart=no
+whonix.GatewayCommand +stop    @tag:anon-gateway @tag:anon-vm      allow  autostart=no
+whonix.GatewayCommand +showlog @tag:anon-gateway @tag:anon-vm      allow  autostart=no
+whonix.GatewayCommand *        @anyvm            @anyvm            deny
