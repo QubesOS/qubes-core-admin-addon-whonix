@@ -19,3 +19,21 @@ whonix.GatewayCommand +restart @tag:anon-gateway @tag:anon-vm      allow  autost
 whonix.GatewayCommand +stop    @tag:anon-gateway @tag:anon-vm      allow  autostart=no
 whonix.GatewayCommand +showlog @tag:anon-gateway @tag:anon-vm      allow  autostart=no
 whonix.GatewayCommand *        @anyvm            @anyvm            deny
+
+# Harden against potential IP leaks by not allowing a compromised
+# Whonix-Workstation to open files, URLs, or applications in VMs other than
+# Whonix-Workstation VMs (typically DispVMs).
+qubes.OpenInVM        *        @tag:anon-vm      @dispvm           ask    default_target=@dispvm
+qubes.OpenInVM        *        @tag:anon-vm      @tag:anon-vm      ask
+qubes.OpenInVM        *        @tag:anon-vm      @default          ask
+qubes.OpenInVM        *        @tag:anon-vm      @anyvm            deny
+
+qubes.OpenURL         *        @tag:anon-vm      @dispvm           ask    default_target=@dispvm
+qubes.OpenURL         *        @tag:anon-vm      @tag:anon-vm      ask
+qubes.OpenURL         *        @tag:anon-vm      @default          ask
+qubes.OpenURL         *        @tag:anon-vm      @anyvm            deny
+
+qubes.StartApp        *        @tag:anon-vm      @dispvm           ask    default_target=@dispvm
+qubes.StartApp        *        @tag:anon-vm      @tag:anon-vm      ask
+qubes.StartApp        *        @tag:anon-vm      @default          ask
+qubes.StartApp        *        @tag:anon-vm      @anyvm            deny
