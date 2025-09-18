@@ -32,52 +32,142 @@ class QubesWhonixExtension(qubes.ext.Extension):
         """Set the default NetVM for a Whonix-Workstation qube."""
         if isinstance(vm, qubes.vm.templatevm.TemplateVM):
             return
-        template = getattr(vm, "template", None)
-        # look for appropriate whonix-gateway
-        if template is not None and "whonix-default-gw" in template.features:
-            netvm = template.features["whonix-default-gw"]
+
+        curr_netvm = getattr(vm, "netvm", None)
+
+        if not curr_netvm:
+            # If VM has no NetVM, assume user doesn't want one.
+            netvm = None
+
+        elif curr_netvm and curr_netvm.features.check_with_template(
+            "whonix-gw", None
+        ):
+            # If VM's NetVM is a Gateway, use it.
+            netvm = curr_netvm
+
         else:
-            netvm = "sys-whonix"
-        if netvm in app.domains:
+            feature = vm.features.check_with_template("whonix-default-gw", None)
+            if (
+                feature
+                and feature in app.domains
+                and feature.features.get("whonix-gw", None)
+            ):
+                # If any VM in template chain has the special feature, use it.
+                netvm = feature
+            else:
+                # If all fails, use hardcoded name.
+                # HARDCODED.
+                netvm = "sys-whonix"
+
+        if netvm is None:
+            pass
+        elif netvm in app.domains:
             vm.netvm = netvm
         else:
-            # expected netvm does not exists, log an error and set netvm
-            # to None
             vm.log.error(
-                "QubesWhonixExtension: netvm '%s' does not " "exists", netvm
+                "QubesWhonixExtension: netvm '%s' does not exist", netvm
             )
             vm.netvm = None
 
     @staticmethod
     def set_ws_dispvm(app, vm):
         """Set the default DispVM for a Whonix-Workstation qube."""
-        if isinstance(vm, qubes.vm.templatevm.TemplateVM):
-            return
-        template = getattr(vm, "template", None)
-        # look for appropriate default dispvm
-        if (
-            template is not None
-            and "whonix-default-dispvm" in template.features
-        ):
-            default_dispvm = template.features["whonix-default-dispvm"]
-        elif template is not None:
-            #  example template.name: whonix-ws-14
-            # example default_dispvm: whonix-ws-14-dvm
-            default_dispvm = template.name + "-dvm"
-        else:
-            # assume whonix-workstation-17-dvm is right
-            # HARDCODED.
-            default_dispvm = "whonix-workstation-17-dvm"
 
-        if default_dispvm in app.domains:
-            vm.default_dispvm = default_dispvm
-        else:
-            # expected default dispvm does not exists, log an error and set
-            # default dispvm to None
-            vm.log.error(
-                "QubesWhonixExtension: default dispvm'%s' does " "not exists",
-                default_dispvm,
+        def get_template_dispvm(
+            template: qubes.vm.templatevm.TemplateVM,
+        ) -> str:
+            feature = vm.features.check_with_template(
+                "whonix-default-dispvm", None
             )
+            if (
+                feature
+                and feature in app.domains
+                and feature.features.get("whonix-ws", None)
+            ):
+                # If any VM in template chain has the special feature, use it.
+                default_dispvm = feature
+            elif template is not None:
+                # If we have a template, use it for assuming a name.
+                default_dispvm = template.name + "-dvm"
+            else:
+                # If all fails, use hardcoded name.
+                # HARDCODED.
+                default_dispvm = "whonix-workstation-17-dvm"
+            return default_dispvm
+
+        def set_default_dispvm(vm, default_dispvm: str | None):
+            if default_dispvm is None:
+                pass
+            elif default_dispvm in app.domains:
+                vm.default_dispvm = default_dispvm
+            else:
+                vm.log.error(
+                    "QubesWhonixExtension: default dispvm '%s' does not exist",
+                    default_dispvm,
+                )
+                vm.default_dispvm = None
+
+        if isinstance(vm, qubes.vm.templatevm.TemplateVM):
+            default_dispvm = getattr(vm, "default_dispvm", None)
+            if not default_dispvm:
+                return
+            if not default_dispvm.features.check_with_template(
+                "whonix-ws", None
+            ):
+                set_default_dispvm(vm, get_template_dispvm(vm))
+            return
+
+        template_for_dispvms = getattr(vm, "template_for_dispvms", False)
+
+        if template_for_dispvms and getattr(vm, "template", None):
+            # If VM is a DVM and it's template has a DVM that is not a
+            # Workstation, use itself.
+            template_default_dispvm = getattr(
+                vm.template, "default_dispvm", None
+            )
+            if (
+                template_default_dispvm
+                and not template_default_dispvm.features.check_with_template(
+                    "whonix-ws"
+                )
+            ):
+                vm.template.default_dispvm = vm
+
+        curr_default_dispvm = getattr(vm, "default_dispvm", None)
+
+        if not curr_default_dispvm:
+            # If VM has no default_dispvm, assume user doesn't want one.
+            default_dispvm = None
+
+        elif template_for_dispvms:
+            # If VM is a Workstation DVM, use itself.
+            default_dispvm = vm
+
+        elif (
+            curr_default_dispvm
+            and curr_default_dispvm.features.check_with_template(
+                "whonix-ws", None
+            )
+        ):
+            # If VM's default_dispvm is Whonix, use it.
+            default_dispvm = curr_default_dispvm
+
+        else:
+            # Standalones don't have a template, return thyself.
+            template = getattr(vm, "template", vm)
+            default_dispvm = get_template_dispvm(template)
+
+        set_default_dispvm(vm, default_dispvm)
+
+    @staticmethod
+    def set_gw_dispvm(app, vm):
+        """Set the default DispVM for a Whonix-Gateway qube to None if the
+        current one is not a Whonix-Workstation."""
+        # pylint: disable=unused-argument
+        default_dispvm = getattr(vm, "default_dispvm", None)
+        if not default_dispvm:
+            return
+        if not default_dispvm.features.check_with_template("whonix-ws", None):
             vm.default_dispvm = None
 
     @qubes.ext.handler("domain-add", system=True)
@@ -92,6 +182,7 @@ class QubesWhonixExtension(qubes.ext.Extension):
         if "whonix-gw" in template.features:
             vm.tags.add("anon-gateway")
             vm.tags.add("sdwdate-gui-server")
+            self.set_gw_dispvm(app, vm)
 
         if "whonix-ws" in template.features:
             # this is new VM based on whonix-ws, adjust its default settings
@@ -115,12 +206,30 @@ class QubesWhonixExtension(qubes.ext.Extension):
         oldvalue=None,
     ):
         """Set NetVM and DispVM appropriately on VMs that are newly set as a
-        Whonix-Workstation VM (mostly useful for configuring StandaloneVMs
+        Whonix-Workstation VM
         """
         # pylint: disable=unused-argument,too-many-positional-arguments
-        if value == "1":
-            self.set_ws_netvm(vm.app, vm)
-            self.set_ws_dispvm(vm.app, vm)
+        if not value:
+            return
+        self.set_ws_netvm(vm.app, vm)
+        self.set_ws_dispvm(vm.app, vm)
+
+    @qubes.ext.handler("domain-feature-set:whonix-gw")
+    def on_whonix_gw_feature_set(
+        self,
+        vm,
+        event,
+        feature,
+        value,
+        oldvalue=None,
+    ):
+        """Set DispVM appropriately on VMs that are newly set as a
+        Whonix-Gateway VM
+        """
+        # pylint: disable=unused-argument,too-many-positional-arguments
+        if not value:
+            return
+        self.set_gw_dispvm(vm.app, vm)
 
     @qubes.ext.handler("features-request")
     def on_features_request(self, vm, _event, untrusted_features):
