@@ -1,13 +1,19 @@
 # service            arg source                  target                  action params
 
+sdwdate-gui.Connect      *   @tag:sdwdate-gui-client @tag:sdwdate-gui-server allow  autostart=no notify=no
+sdwdate-gui.ConnectCheck *   @tag:sdwdate-gui-client @tag:sdwdate-gui-server allow  autostart=no notify=no
+
+sdwdate-gui.Connect      *   @anyvm                  @anyvm                  deny
+sdwdate-gui.ConnectCheck *   @anyvm                  @anyvm                  deny
+
+# Legacy, all of these services should effectively be no-ops for fully updated
+# Whonix-Gateway and Whonix-Workstation qubes.
 sdwdate.Connect      *   @tag:sdwdate-gui-client @tag:sdwdate-gui-server allow  autostart=no notify=no
 sdwdate.ConnectCheck *   @tag:sdwdate-gui-client @tag:sdwdate-gui-server allow  autostart=no notify=no
 
 sdwdate.Connect      *   @anyvm                  @anyvm                  deny
 sdwdate.ConnectCheck *   @anyvm                  @anyvm                  deny
 
-# Legacy, all of these services should effectively be no-ops for fully updated
-# Whonix-Gateway and Whonix-Workstation qubes.
 whonix.SdwdateStatus +         @tag:anon-gateway @tag:anon-vm      allow  autostart=no notify=no
 whonix.SdwdateStatus +         @tag:anon-gateway @default          deny   notify=no
 whonix.SdwdateStatus +         @anyvm            @anyvm            deny
