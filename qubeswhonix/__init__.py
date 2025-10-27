@@ -133,6 +133,11 @@ class QubesWhonixExtension(qubes.ext.Extension):
         if 'whonix-ws' in untrusted_features:
             vm.features['whonix-ws'] = True
             vm.tags.add('whonix-updatevm')
+            if vm.property_is_default("memory"):
+                # Whonix workstation starts more things on boot and as such
+                # needs more memory to properly start (without excessive
+                # swapping):
+                vm.memory = 500
 
     @qubes.ext.handler('domain-load')
     def on_domain_load(self, vm, _event):
