@@ -21,6 +21,7 @@
 """qubes-core-admin extension for handling Whonix related settings"""
 
 import qubes.ext
+import qubes.vm
 import qubes.vm.templatevm
 
 
@@ -177,6 +178,8 @@ class QubesWhonixExtension(qubes.ext.Extension):
         """Handle new AppVM created on whonix-ws/whonix-gw template and
         adjust its default settings
         """
+        if not isinstance(vm, qubes.vm.LocalVM):
+            return
 
         if vm.features.check_with_template("whonix-gw", None):
             vm.tags.add("anon-gateway")
@@ -249,6 +252,9 @@ class QubesWhonixExtension(qubes.ext.Extension):
         """Retroactively add tags to sys-whonix and anon-whonix. Also enable
         event buffering if it's not already enabled.
         """
+        if not isinstance(vm, qubes.vm.LocalVM):
+            return
+
         if vm.features.check_with_template("whonix-gw", None):
             if "anon-gateway" not in vm.tags:
                 vm.tags.add("anon-gateway")
