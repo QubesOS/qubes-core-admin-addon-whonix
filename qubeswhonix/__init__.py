@@ -88,7 +88,10 @@ class QubesWhonixExtension(qubes.ext.Extension):
             ):
                 # If any VM in template chain has the special feature, use it.
                 default_dispvm = feature
-            elif template is not None:
+            elif (
+                template is not None
+                and (template.name + "-dvm") in app.domains
+            ):
                 # If we have a template, use it for assuming a name.
                 default_dispvm = template.name + "-dvm"
             else:
