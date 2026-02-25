@@ -89,8 +89,7 @@ class QubesWhonixExtension(qubes.ext.Extension):
                 # If any VM in template chain has the special feature, use it.
                 default_dispvm = feature
             elif (
-                template is not None
-                and (template.name + "-dvm") in app.domains
+                template is not None and (template.name + "-dvm") in app.domains
             ):
                 # If we have a template, use it for assuming a name.
                 default_dispvm = template.name + "-dvm"
@@ -176,6 +175,31 @@ class QubesWhonixExtension(qubes.ext.Extension):
         if not default_dispvm.features.check_with_template("whonix-ws", None):
             vm.default_dispvm = None
 
+    def apply_tags_and_features(self, vm):
+        """Apply the appropriate tags and features to Whonix-Gateway and
+        Whonix-Workstation VMs."""
+        if not isinstance(vm, qubes.vm.LocalVM):
+            return
+
+        if vm.features.check_with_template("kicksecure", None):
+            return
+
+        if vm.features.check_with_template("whonix-gw", None):
+            vm.tags.add("anon-gateway")
+            vm.tags.add("sdwdate-gui-server")
+        else:
+            vm.tags.discard("anon-gateway")
+            vm.tags.discard("sdwdate-gui-server")
+
+        if vm.features.check_with_template("whonix-ws", None):
+            vm.tags.add("anon-vm")
+            vm.tags.add("sdwdate-gui-client")
+            if "gui-events-max-delay" not in vm.features:
+                vm.features["gui-events-max-delay"] = 100
+        else:
+            vm.tags.discard("anon-vm")
+            vm.tags.discard("sdwdate-gui-client")
+
     @qubes.ext.handler("domain-add", system=True)
     def on_domain_add(self, app, _event, vm, **_kwargs):
         """Handle new AppVM created on whonix-ws/whonix-gw template and
@@ -184,22 +208,15 @@ class QubesWhonixExtension(qubes.ext.Extension):
         if not isinstance(vm, qubes.vm.LocalVM):
             return
 
+        self.apply_tags_and_features(vm)
+
         if vm.features.check_with_template("whonix-gw", None):
-            vm.tags.add("anon-gateway")
-            vm.tags.add("sdwdate-gui-server")
             self.set_gw_dispvm(app, vm)
 
         if vm.features.check_with_template("whonix-ws", None):
             # this is new VM based on whonix-ws, adjust its default settings
-
-            vm.tags.add("anon-vm")
-            vm.tags.add("sdwdate-gui-client")
-
             self.set_ws_netvm(app, vm)
             self.set_ws_dispvm(app, vm)
-
-            if "gui-events-max-delay" not in vm.features:
-                vm.features["gui-events-max-delay"] = 100
 
     @qubes.ext.handler("domain-feature-set:whonix-ws")
     def on_whonix_ws_feature_set(
@@ -255,18 +272,12 @@ class QubesWhonixExtension(qubes.ext.Extension):
         """Retroactively add tags to sys-whonix and anon-whonix. Also enable
         event buffering if it's not already enabled.
         """
-        if not isinstance(vm, qubes.vm.LocalVM):
-            return
+        self.apply_tags_and_features(vm)
 
-        if vm.features.check_with_template("whonix-gw", None):
-            if "anon-gateway" not in vm.tags:
-                vm.tags.add("anon-gateway")
-            if "sdwdate-gui-server" not in vm.tags:
-                vm.tags.add("sdwdate-gui-server")
-        if vm.features.check_with_template("whonix-ws", None):
-            if "anon-vm" not in vm.tags:
-                vm.tags.add("anon-vm")
-            if "sdwdate-gui-client" not in vm.tags:
-                vm.tags.add("sdwdate-gui-client")
-            if "gui-events-max-delay" not in vm.features:
-                vm.features["gui-events-max-delay"] = 100
+    @qubes.ext.handler("property-set:template")
+    def on_property_set_template(
+        self, vm, event, name, newvalue, oldvalue=None
+    ):
+        # pylint: disable=too-many-positional-arguments, unused-argument
+        """Add tags to AppVMs that become based upon Whonix."""
+        self.apply_tags_and_features(vm)
