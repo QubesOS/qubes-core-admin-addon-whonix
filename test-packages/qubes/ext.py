@@ -1,5 +1,5 @@
 class Extension:
     pass
 
-def handler(event, **kwargs):
+def handler(*events, **kwargs):
     pass
