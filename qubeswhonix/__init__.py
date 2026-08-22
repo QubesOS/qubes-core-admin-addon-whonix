@@ -22,6 +22,7 @@
 
 import qubes.ext
 import qubes.vm
+import qubes.vm.qubesvm
 import qubes.vm.templatevm
 
 
@@ -127,16 +128,15 @@ class QubesWhonixExtension(qubes.ext.Extension):
         if template_for_dispvms and getattr(vm, "template", None):
             # If VM is a DVM and it's template has a DVM that is not a
             # Workstation, use itself for the template.
-            template_default_dispvm = getattr(
-                vm.template, "default_dispvm", None
-            )
+            template = qubes.vm.qubesvm.get_active_template(vm)
+            template_default_dispvm = getattr(template, "default_dispvm", None)
             if (
                 template_default_dispvm
                 and not template_default_dispvm.features.check_with_template(
                     "whonix-ws"
                 )
             ):
-                vm.template.default_dispvm = vm
+                template.default_dispvm = vm
 
         curr_default_dispvm = getattr(vm, "default_dispvm", None)
 
@@ -159,7 +159,7 @@ class QubesWhonixExtension(qubes.ext.Extension):
 
         else:
             # Standalones don't have a template, return thyself.
-            template = getattr(vm, "template", vm)
+            template = qubes.vm.qubesvm.get_active_template(vm) or vm
             default_dispvm = get_template_dispvm(template)
 
         set_default_dispvm(vm, default_dispvm)
@@ -274,10 +274,14 @@ class QubesWhonixExtension(qubes.ext.Extension):
         """
         self.apply_tags_and_features(vm)
 
-    @qubes.ext.handler("property-set:template")
+    @qubes.ext.handler(
+        "property-set:template",
+        "property-reset:active_template",
+    )
     def on_property_set_template(
-        self, vm, event, name, newvalue, oldvalue=None
+        self, vm, event, name, newvalue=None, oldvalue=None
     ):
-        # pylint: disable=too-many-positional-arguments, unused-argument
+        # pylint: disable=too-many-function-args
+        # pylint: disable=too-many-positional-arguments,unused-argument
         """Add tags to AppVMs that become based upon Whonix."""
         self.apply_tags_and_features(vm)
