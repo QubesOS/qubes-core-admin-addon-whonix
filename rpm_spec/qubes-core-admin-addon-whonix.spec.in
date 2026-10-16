@@ -12,6 +12,7 @@ BuildArch:	noarch
 BuildRequires:	python3-devel
 BuildRequires:	python3-setuptools
 BuildRequires:  make
+Requires:   qubes-core-dom0 >= 4.4.1
 
 %description
 qubes-core-admin extension for handling Whonix related settings
